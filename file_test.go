@@ -2,6 +2,7 @@ package xlsxreader
 
 import (
 	"archive/zip"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -30,6 +31,24 @@ func TestGettingFileByNameFailure(t *testing.T) {
 
 	require.EqualError(t, err, "File not found: OOPS")
 
+}
+
+func TestExcel(t *testing.T) {
+	e, err := OpenFile("./test/test2_onlyheader.xlsx")
+	if err != nil {
+		t.Fail()
+	}
+	defer e.Close()
+	fmt.Printf("Worksheets: %s \n", e.Sheets)
+	for row := range e.ReadRows("Aziende") {
+		if row.Error != nil {
+			fmt.Printf("error on row %d: %s \n", row.Index, row.Error)
+			return
+		}
+		if row.Index < 10 {
+			fmt.Printf("%+v \n", row.Cells)
+		}
+	}
 }
 
 func TestOpeningMissingFile(t *testing.T) {
